@@ -1,3 +1,4 @@
+from accounts.decorators import  unauthenticated_user
 from django import forms
 from django.shortcuts import render, redirect 
 from django.http import HttpResponse, request
@@ -30,23 +31,23 @@ def registerPage(request):
 
 
 	
-
+@unauthenticated_user #this is builtin django decorator. this passes the loginPage view function to unauthenticated_user in user.html as an agrgument
 def loginPage(request):
-	if request.user.is_authenticated: #if user is logged in he cannot goto login page withouth logging out
-		return redirect('home')
-	else:
-		if request.method == 'POST': # checks if the method is posts
-			username = request.POST.get('username') #grabs username from login page
-			password = request.POST.get('password')
+	# if request.user.is_authenticated: #if user is logged in he cannot goto login page withouth logging out
+	# 	return redirect('home')
+	# else:
+	if request.method == 'POST': # checks if the method is posts
+		username = request.POST.get('username') #grabs username from login page
+		password = request.POST.get('password')
 
 			#checking if that username and password in the database i.e. authentication
-			user = authenticate(request, username= username, password= password ) #second username is username got from above request method
+		user = authenticate(request, username= username, password= password ) #second username is username got from above request method
 
-			if user is not None: #if username or password exists
-				login(request,user)
-				return redirect('home')
-			else: #if user name or passoword doesnot exists
-				messages.info(request,'Username or Password is incorrect.')
+		if user is not None: #if username or password exists
+			login(request,user)
+			return redirect('home')
+		else: #if user name or passoword doesnot exists
+			messages.info(request,'Username or Password is incorrect.')
 	context = {} 
 	return render(request, 'accounts/login.html', context)
 
@@ -74,6 +75,11 @@ def home(request):
 	'pending':pending }
 
 	return render(request, 'accounts/dashboard.html', context)
+
+
+def userPage(request):
+	context={}
+	return render(request,'accounts/user.html', context)
 
 @login_required(login_url='login')
 def products(request):
