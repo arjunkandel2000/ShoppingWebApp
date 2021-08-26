@@ -1,0 +1,33 @@
+<h1>Register</h1>
+
+<!-- here action will be blank because it will sents us this same registratin url -->
+<form action="" method="POST">
+    {% csrf_token %} <!--safer way sending data in django when user hits the 'submit' button -->
+    <!-- {{form.as_p}} sending form to this template. it is rendering from function registerPage in views. as_p puts each input field in each paragraph -->
+
+    <!-- customized form -->
+
+    {{form.username.label}} <!--label as username-->
+    {{form.username}} <!-- username typing box-->
+
+    {{form.email.label}}
+    {{form.email}}
+
+    {{form.password1.label}}
+    {{form.password1}}
+
+    {{form.password2.label}}
+    {{form.password2}}
+
+
+
+
+    <!-- {% for field in form %} this will loop through all fields -->
+    <!-- {{field.label}} -->
+    <!-- {{field}} -->
+    <!-- {% endfor %} -->
+
+
+    <input type="submit", name="Submit">
+
+</form>
