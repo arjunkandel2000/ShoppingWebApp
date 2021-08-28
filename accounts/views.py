@@ -1,4 +1,3 @@
-from accounts.decorators import  unauthenticated_user
 from django import forms
 from django.shortcuts import render, redirect 
 from django.http import HttpResponse, request
@@ -6,11 +5,13 @@ from django.forms import inlineformset_factory #for making inline froms in searc
 from django.contrib.auth.forms import UserCreationForm  #importing login forms. django provides the forms we donot need to create it
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required #log in required to access the page.
+from django.contrib.auth.models import Group #import the group model
 from django.contrib import messages #sending one time messege 
 # Create your views here.
 from .models import *
 from .forms import OrderForm, CreateUserForm # createuserform imported from forms.py and the form below in registerPage is repalced as CreateUserForm
 from .filters import OrderFilter
+from accounts.decorators import  unauthenticated_user,  allowed_users,admin_only
 
 
 def registerPage(request):
@@ -22,9 +23,11 @@ def registerPage(request):
 		if request.method == 'POST': 
 			form = CreateUserForm(request.POST) # throwing the data in to the form(username and password)
 			if form.is_valid():
-				form.save()
-				user = form.cleaned_data.get('username') #getting username from the form
-				messages.success(request, 'Account was created for ' + user + '.') #see documentation. if there is already a account this messege will be dispalyed and redirected to login page
+				user = form.save()
+				username = form.cleaned_data.get('username') #getting username from the form
+				group = Group.objects.get(name= 'customer') #when user signs up user automatiically set to the customer group
+				user.groups.add(group) # user is added to cusstomer group name
+				messages.success(request, 'Account was created for ' + username + '.') #see documentation. if there is already a account this messege will be dispalyed and redirected to login page
 				return redirect('login')	
 	context = {'form': form}  #passing the form to our template
 	return render(request, 'accounts/register.html', context)
@@ -60,6 +63,8 @@ def logoutUser(request):
 
 
 @login_required(login_url='login') #it is set to every page which are only to be accessible after logs in. otherwise user is redirected to only loginPage
+# @allowed_users(allowed_roles=['admin'])
+@admin_only
 def home(request):
 	orders = Order.objects.all()
 	customers = Customer.objects.all()
@@ -82,12 +87,14 @@ def userPage(request):
 	return render(request,'accounts/user.html', context)
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def products(request):
 	products = Product.objects.all()
 
 	return render(request, 'accounts/products.html', {'products':products})
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def customer(request, pk_test):
 	customer = Customer.objects.get(id=pk_test)
 
@@ -101,6 +108,7 @@ def customer(request, pk_test):
 	return render(request, 'accounts/customer.html',context)
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def createOrder(request, pk):
 	OrderFormSet = inlineformset_factory(Customer, Order, fields=('product', 'status'), extra=10 )
 	customer = Customer.objects.get(id=pk)
@@ -118,6 +126,7 @@ def createOrder(request, pk):
 	return render(request, 'accounts/order_form.html', context)
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def updateOrder(request, pk):
 
 	order = Order.objects.get(id=pk)
@@ -133,6 +142,7 @@ def updateOrder(request, pk):
 	return render(request, 'accounts/order_form.html', context)
 
 @login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
 def deleteOrder(request, pk):
 	order = Order.objects.get(id=pk)
 	if request.method == "POST":
