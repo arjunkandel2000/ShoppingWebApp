@@ -1,9 +1,10 @@
 from django.db import models
-
+from  django.contrib.auth.models import User
 # Create your models here.
 
 class Customer(models.Model):
 	# id = models.AutoField(primary_key=True) # defining a primary key type but it works from last line of settings .py
+	user = models.OneToOneField(User, null=True, on_delete= models.CASCADE) #CUSTOMER CAN HAVE ONE USER AND ONE USER CAN HAVE ONE CUSTOMER. CASCADE DELETE THE RELATIONSHIP BETWEEN THE USER ON DELETE
 	name = models.CharField(max_length=200, null=True)
 	phone = models.CharField(max_length=200, null=True)
 	email = models.CharField(max_length=200, null=True)

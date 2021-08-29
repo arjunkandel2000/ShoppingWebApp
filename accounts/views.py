@@ -27,6 +27,9 @@ def registerPage(request):
 				username = form.cleaned_data.get('username') #getting username from the form
 				group = Group.objects.get(name= 'customer') #when user signs up user automatiically set to the customer group
 				user.groups.add(group) # user is added to cusstomer group name
+				Customer.objects.create( #creates the user profile for a new user
+					user=user,
+				)
 				messages.success(request, 'Account was created for ' + username + '.') #see documentation. if there is already a account this messege will be dispalyed and redirected to login page
 				return redirect('login')	
 	context = {'form': form}  #passing the form to our template
@@ -81,9 +84,17 @@ def home(request):
 
 	return render(request, 'accounts/dashboard.html', context)
 
-
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
 def userPage(request):
-	context={}
+	orders = request.user.customer.order_set.all() #order is related to customer not to the user
+	total_orders = orders.count()
+	delivered = orders.filter(status='Delivered').count()
+	pending = orders.filter(status='Pending').count()
+	print('ORDERS:', orders)
+	context={'orders': orders,
+	'total_orders':total_orders,'delivered':delivered,
+	'pending':pending}
 	return render(request,'accounts/user.html', context)
 
 @login_required(login_url='login')
