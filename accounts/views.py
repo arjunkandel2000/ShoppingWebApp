@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group #import the group model
 from django.contrib import messages #sending one time messege 
 # Create your views here.
 from .models import *
-from .forms import OrderForm, CreateUserForm # createuserform imported from forms.py and the form below in registerPage is repalced as CreateUserForm
+from .forms import CustomerForm, OrderForm, CreateUserForm # createuserform imported from forms.py and the form below in registerPage is repalced as CreateUserForm
 from .filters import OrderFilter
 from accounts.decorators import  unauthenticated_user,  allowed_users,admin_only
 
@@ -96,6 +96,15 @@ def userPage(request):
 	'total_orders':total_orders,'delivered':delivered,
 	'pending':pending}
 	return render(request,'accounts/user.html', context)
+
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
+def accountSettings(request):
+	user = request.user
+	form = CustomerForm(instance=user)
+	context = {'form':form}
+	return render(request, 'accounts/accounts_settings.html',context)
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['admin'])

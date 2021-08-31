@@ -127,6 +127,10 @@ MEDIA_URL = '/images/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images') #for profile image
+
+
 #DEFAULT PRIMARY FIELD KEY TYPE
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField' # IN CASE OF WARNING FOR NOT DEFINNING PRIMARY KEY TYPE
